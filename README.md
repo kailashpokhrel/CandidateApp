@@ -13,7 +13,6 @@ CandidateApp/
 │   ├── Controllers/              # API controllers for candidate data
 │   ├── Middleware/               # Custom middlewares for handling requests/responses
 │   
-│
 ├── Candidate.Application/        # Application logic (use cases, services)
 │   ├── Mappers/                  # Mapping logic between domain models and DTOs
 │   ├── Models/                   # Data models for application-specific logic
@@ -35,20 +34,19 @@ CandidateApp/
 │   ├── ServiceTests/             # Unit tests for service layer
 │   ├── Base/                     # Base classes or utilities for tests
 │   
-│
 ├── Dockerfile                    # Dockerfile for building and running the app in a container
 ├── docker-compose.yml            # Docker Compose file to run multi-container setup (web app + database)
 └── README.md                     # This file (documentation)
 
 
-Technologies Used
+**Technologies Used**
 .NET 8.0 for building the application
 Docker for containerization and deployment
 SQL Server for the relational database
 Entity Framework Core for ORM and database migrations
 
 
-How to Run the Application
+**How to Run the Application**
 
 Pre-requisites:
 Docker must be installed on your system. If you don't have Docker, install it from Docker's official website.
@@ -76,7 +74,7 @@ Database:
 The database used is SQL Server and is managed using Entity Framework Core for migrations. If you are running locally, the database connection string is configured in the docker-compose.yml file.
 
 
-Design Decisions
+**Design Decisions**
 
 Repository Pattern:
 Data access is abstracted through the Repository Pattern, which decouples the application logic from the database. This makes it easier to swap out database providers in the future (e.g., switching from SQL Server to PostgreSQL or NoSQL databases).
@@ -88,7 +86,7 @@ Modular Architecture:
 Refactor the application into a microservices architecture to make the system more modular and scalable, especially as the app grows and additional features are added.
 
 
-Key Assumptions Made
+**Key Assumptions Made**
 
 Scalability: Assumed the application will need to scale to handle large volumes of candidates and job applications in the future, requiring optimized database access and caching strategies.
 
@@ -109,7 +107,7 @@ Logging & Monitoring: Assumed robust logging and monitoring mechanisms, utilizin
 Extensibility: Assumed the application is designed to be easily extendable, with clear interfaces for new features, integrations, and future enhancements without significant refactoring.
 
 
-Future Extensibility & Improvement 
+**Future Extensibility & Improvement **
 
 Database Abstraction: If you need to switch to another database (e.g., PostgreSQL, MongoDB), you only need to modify the ApplicationDbContext and CandidateRepository implementation without affecting the business logic layer.
 
