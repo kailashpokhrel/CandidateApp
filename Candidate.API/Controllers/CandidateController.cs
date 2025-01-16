@@ -1,6 +1,9 @@
-﻿using Candidate.Domain.Entities;
+﻿using Candidate.Application.Models;
+using Candidate.Application.Service;
+using Candidate.Domain.Entities;
 using Candidate.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Candidate.API.Controllers
 {
@@ -8,56 +11,66 @@ namespace Candidate.API.Controllers
     [ApiController]
     public class CandidateController : ControllerBase
     {
-        private readonly ICandidateRepository _candidateRepository;
+        private readonly ICandidateService _candidateService;
+        private readonly ILogger<CandidateController> _logger;
 
-        public CandidateController(ICandidateRepository candidateRepository)
+
+        public CandidateController(ICandidateService candidateService, ILogger<CandidateController> logger)
         {
-            _candidateRepository = candidateRepository;
+            _candidateService = candidateService;
+            _logger = logger ;
         }
 
         [HttpGet("{email}")]
-        public async Task<ActionResult<CandidateProfile>> GetCandidate(string email)
+        public async Task<ActionResult<CandidateDto>> GetCandidate(string email)
         {
-            var candidate = await _candidateRepository.GetByEmailAsync(email);
-            if (candidate == null)
+            try
             {
-                return NotFound(); 
+                var candidate = await _candidateService.GetCandidateByEmailAsync(email);
+                if (candidate == null)
+                {
+                    return NotFound();
+                }
+                return Ok(candidate);
             }
-            return Ok(candidate); 
+            catch (Exception ex)
+            {
+                //_logger.LogError(ex, "Error retriving candidate");
+                return StatusCode(500, "Internal Server Error");
+            }
+           
         }
 
-        [HttpPost]
-        public async Task<ActionResult<CandidateProfile>> CreateCandidate([FromBody] CandidateProfile candidateProfile)
+        
+        [HttpPost("CreateOrUpdate")]
+        public async Task<IActionResult> CreateOrUpdateCandidateAsync([FromBody] CandidateModel candidateModel)
         {
-            var existingCandidate = await _candidateRepository.GetByEmailAsync(candidateProfile.Email);
-            if (existingCandidate != null)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
             {
-                return Conflict("A candidate with the same email already exists."); // HTTP 409 Conflict
+
+                var candidate = await _candidateService.CreateOrUpdateCandidateAsync(candidateModel);
+                
+                if (candidate == null)
+                {
+                    return NotFound(new { message = "Candidate not found" });  // Return 404 if candidate is null
+                }
+                
+                return Ok(candidate);
             }
-
-            var createdCandidate = await _candidateRepository.AddAsync(candidateProfile);
-
-            return CreatedAtAction(nameof(GetCandidate), new { email = createdCandidate.Email }, createdCandidate);
+            catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+            {
+                return Conflict(new { message = ex.Message }); 
+            }
+            catch (System.Exception ex)
+            {
+                //_logger.LogError(ex, "Error creating or updating candidate.");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
-        [HttpPut("{email}")]
-        public async Task<IActionResult> UpdateCandidate(string email, [FromBody] CandidateProfile candidateProfile)
-        {
-            if (email != candidateProfile.Email)
-            {
-                return BadRequest("Email in URL does not match email in body."); 
-            }
-
-            var existingCandidate = await _candidateRepository.GetByEmailAsync(email);
-            if (existingCandidate == null)
-            {
-                return NotFound(); 
-            }
-
-            await _candidateRepository.UpdateAsync(candidateProfile);
-
-            return NoContent(); 
-        }
 
     }
 }

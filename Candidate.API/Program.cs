@@ -1,6 +1,11 @@
+using Candidate.API.Middleware;
+using Candidate.Application.Service;
+using Candidate.Application.Validations;
 using Candidate.Domain.Interfaces;
 using Candidate.Infrastructure.Persistence;
 using Candidate.Infrastructure.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationsDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("CandidateConnection")));
 
+builder.Services.AddValidatorsFromAssemblyContaining<CandidateProfileValidator>();
+builder.Services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CandidateProfileValidator>());
+
+builder.Services.AddLogging();
+
+builder.Services.AddScoped<ICandidateService, CandidateService>();  
 builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -42,6 +56,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();  // Add this line to enable exception handling globally
 
 app.UseHttpsRedirection();
 
