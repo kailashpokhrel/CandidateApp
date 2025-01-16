@@ -5,7 +5,7 @@ CandidateApp
 Overview
 The CandidateApp is a web application designed to manage and track candidate information. It supports storing, retrieving and updating candidate data, with the potential for future scalability to handle dozens of thousands of records. The app is designed with a focus on modularity, performance, and future extensibility. It is built with .NET 8.0 and Docker for containerization.
 
-Project Structure
+**Project Structure**
 
 CandidateApp/
 │
@@ -109,7 +109,7 @@ Extensibility: Assumed the application is designed to be easily extendable, with
 
 **Future Extensibility & Improvement **
 
-Database Abstraction: If you need to switch to another database (e.g., PostgreSQL, MongoDB), you only need to modify the ApplicationDbContext and CandidateRepository implementation without affecting the business logic layer.
+Database Abstraction: If you need to switch to another database (e.g., PostgreSQL), you only need to modify the ApplicationDbContext and CandidateRepository implementation without affecting the business logic layer.
 
 Scalability: The code is modular, so it can be horizontally scaled by using distributed caching (e.g., Redis) for handling a large number of requests and maintaining state between services.
 
