@@ -1,0 +1,29 @@
+version: '3.8'  # Updated version
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Path to the Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - CONNECTIONSTRINGS__AGENTCONNECTION=Server=db;Database=CandidateDb;User Id=sa;Password=P@ssw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True;
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P@ssw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/lib/sql/data  # Mount volume
+
+# Declare the volume at the bottom
+volumes:
+  sqldata:
+    driver: local  # This will create a local volume

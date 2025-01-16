@@ -1,0 +1,23 @@
+# Use the official .NET 8 SDK image to build the app
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy the test projects
+COPY ["Candidate.Tests/Candidate.Tests.csproj", "src/Candidate.Tests/"]
+COPY ["Candidate.API/Candidate.API.csproj", "src/Candidate.API/"]
+COPY ["Candidate.Application/Candidate.Application.csproj", "src/Candidate.Application/"]
+COPY ["Candidate.Domain/Candidate.Domain.csproj", "src/Candidate.Domain/"]
+COPY ["Candidate.Infrastructure/Candidate.Infrastructure.csproj", "src/Candidate.Infrastructure/"]
+
+# Restore dependencies
+RUN dotnet restore "Candidate.Tests/Candidate.Tests.csproj"
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the test project
+WORKDIR /src/Candidate.Tests
+RUN dotnet build "Candidate.Tests.csproj" -c Release
+
+# Run the tests
+ENTRYPOINT ["dotnet", "test", "Candidate.Tests.csproj"]
